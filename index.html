@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Simple Gantt</title>
+	<style>
+		body {
+			font-family: sans-serif;
+			background: #ccc;
+			height: 100vh;
+			margin: 0;
+			padding: 0;
+			overflow: hidden;
+		}
+		.container {
+			width: 95%;
+			max-height: 100%;
+			margin: 10px;
+		}
+		/* custom class */
+		.gantt .bar-milestone .bar {
+			fill: tomato;
+		}
+		.heading {
+			text-align: center;
+		}
+
+		.gantt-wrapper {
+			/* gantt直下のdivではflexのみ設定 */
+			display: flex;
+			flex-direction: row;
+
+			width: 100%;
+			height: 500px;    /*gantt本体の2つ上のdivで高さを制限 */
+			overflow: scroll; /*gantt本題の２つ上のdivでスクロール設定 */
+		}
+
+		.gantt-container_data {
+			/* gantt本体では横の伸びの設定のみ */
+			flex: 0 0 20%;
+			width: 20%;
+			position: sticky;
+			left: 0;
+			z-index: 1;
+		}
+		.gantt-target_data {
+			overflow-x: hidden;
+		}
+
+		.gantt-container {
+			flex: 0 0 auto;
+		}
+		.gantt-target {
+			overflow-x: hidden;
+		}
+	</style>
+	<!-- <link rel="stylesheet" href="dist/frappe-gantt.css" /> -->
+	<!-- <script src="dist/frappe-gantt.js"></script> -->
+	<link rel="stylesheet" href="dist/ra-gantt.css" />
+	<script src="dist/ra-gantt.js"></script>
+</head>
+<body>
+	<div class="container">
+		<h2 class="heading">Interactive Gantt Chart entirely made in SVG!</h2>
+		<div class="gantt-wrapper">
+				<div class="gantt-container_data">
+					<div class="gantt-target_data"></div>
+				</div>
+				<div class="gantt-container">
+					<div class="gantt-target"></div>
+				</div>
+			</div>
+		</div>
+		<input id="abc" type="text"/>
+		<button onclick="refresh()">refresh!</button>
+	</div>
+
+
+
+
+
+
+	<script>
+		var tasks = [
+			{
+				start: '2023-10-01',
+				end: '2023-10-08',
+				name: 'Redesign website',
+				id: "Task 0",
+				progress: 20
+			},
+			{
+				start: '2023-10-03',
+				end: '2023-10-06',
+				name: 'Write new content',
+				id: "Task 1",
+				progress: 5,
+				dependencies: 'Task 0'
+			},
+			{
+				start: '2023-10-04',
+				end: '2023-10-08',
+				name: 'Apply new styles',
+				id: "Task 2",
+				progress: 10,
+				dependencies: 'Task 1'
+			},
+			{
+				start: '2023-10-08',
+				end: '2023-10-09',
+				name: 'Review',
+				id: "Task 3",
+				progress: 5,
+				dependencies: 'Task 2'
+			},
+			{
+				start: '2023-10-08',
+				end: '2023-10-10',
+				name: 'Deploy',
+				id: "Task 4",
+				progress: 0,
+				dependencies: 'Task 2'
+			},
+			{
+				start: '2023-10-11',
+				end: '2023-10-11',
+				name: 'Go Live!',
+				id: "Task 5",
+				progress: 0,
+				dependencies: 'Task 4',
+				custom_class: 'bar-milestone'
+			},
+			{
+				start: '2023-10-05',
+				end: '2023-10-12',
+				name: 'Long term task',
+				id: "Task 6",
+				progress: 0
+			}
+		]
+		for(var i=0; i < 30; i++) {
+			tasks.push({
+				start: '2023-10-29',
+				end: '2023-10-30',
+				name: 'Long term task',
+				id: `Task ${i+10}`,
+				progress: 0
+			})
+		}
+		var gantt_chart = new MyGantt.Gantt(".gantt-target", tasks, {
+			on_click: task => {
+				console.log(task);
+			},
+			on_date_change: (task, start, end) => {
+				console.log(task, start, end);
+			},
+			on_progress_change: (task, progress) => {
+				console.log(task, progress);
+			},
+			on_view_change: (mode) => {
+				console.log(mode);
+			},
+			view_mode: 'Day',
+			language: 'ja'
+		});
+
+		var gantt_chart_data = new MyGantt.Gantt(".gantt-target_data", tasks, {
+			on_click: task => {
+				console.log(task);
+			},
+			on_date_change: (task, start, end) => {
+				console.log(task, start, end);
+			},
+			on_progress_change: (task, progress) => {
+				console.log(task, progress);
+			},
+			on_view_change: (mode) => {
+				console.log(mode);
+			},
+			view_mode: 'Year',
+			language: 'ja'
+		});
+		console.log(gantt_chart);
+
+		function refresh() {
+			var i = document.getElementById("abc");
+			var len = tasks.length;
+			tasks.push({
+				start: '2023-10-29',
+				end: '2023-10-30',
+				name: i.value,
+				id: `Task ${len+10}`,
+				progress: 0
+			});
+			/* ganttの再描画(tasksももとに最新化) */
+			gantt_chart.refresh(tasks);
+			gantt_chart_data.refresh(tasks);
+
+			console.log(i.value);
+		}
+	</script>
+</body>
+</html>
